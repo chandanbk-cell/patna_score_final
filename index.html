@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Result Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eaf6ff;
+    --surface: #ffffff;
+    --card: #f5fbff;
+    --border: #c9e7ff;
+    --accent: #2f8fe8;
+    --accent2: #59b4ff;
+    --text: #0f2942;
+    --muted: #5b7e9c;
+    --danger: #df4c6f;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "DM Mono", monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    position: relative;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(47,143,232,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(47,143,232,0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 1.4rem;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(47,143,232,0.35);
+    border-radius: 100px;
+    padding: 0.28rem 0.9rem;
+    margin-bottom: 1rem;
+    background: rgba(47,143,232,0.1);
+  }
+  h1 {
+    font-family: "Syne", sans-serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #2a76c2 0%, var(--accent) 60%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    margin-top: 0.65rem;
+    color: var(--muted);
+    font-size: 0.83rem;
+  }
+  .mode-switch {
+    margin: 1rem auto 1.8rem;
+    width: fit-content;
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .mode-btn {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-family: "Syne", sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 0.72rem 1rem;
+    cursor: pointer;
+  }
+  .mode-btn.active {
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent), #8f82fc);
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.4rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 10px 30px rgba(40, 127, 198, 0.08);
+  }
+  .card h2 {
+    font-family: "Syne", sans-serif;
+    font-size: 1.1rem;
+    margin-bottom: 0.9rem;
+  }
+  .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    color: var(--muted);
+    margin-bottom: 0.42rem;
+    display: block;
+  }
+  input, select {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 0.76rem 0.9rem;
+    font-family: "DM Mono", monospace;
+    font-size: 0.85rem;
+    outline: none;
+  }
+  input:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(47,143,232,0.2);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.8rem;
+  }
+  .btn {
+    border: 0;
+    border-radius: 10px;
+    font-family: "Syne", sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.76rem 1rem;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+  }
+  .status {
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+  .status.error { color: var(--danger); }
+  .hidden { display: none; }
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.8rem;
+    margin-top: 0.95rem;
+  }
+  .result-item {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.8rem;
+    background: var(--surface);
+  }
+  .result-key {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    margin-bottom: 0.35rem;
+  }
+  .result-value {
+    font-family: "Syne", sans-serif;
+    font-size: 0.93rem;
+    line-height: 1.42;
+    word-break: break-word;
+  }
+  .portal-note {
+    margin-top: 0.9rem;
+    font-size: 0.74rem;
+    color: var(--muted);
+  }
+  @media (max-width: 700px) {
+    .row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="badge">Student Portal</div>
+      <h1>Student Result Lookup</h1>
+      <p class="subtitle">Enter your student code to view your personal record.</p>
+    </div>
+
+    <section id="studentPanel" class="card">
+      <h2>Student Lookup</h2>
+      <label class="label" id="studentInputLabel" for="studentInput">Student Code</label>
+      <div class="row">
+        <input id="studentInput" type="text" placeholder="Enter your student code" autocomplete="off">
+        <button id="lookupBtn" class="btn btn-primary" type="button">Find My Data</button>
+      </div>
+      <div id="studentStatus" class="status"></div>
+
+      <div id="resultCard" class="hidden" style="margin-top:1rem;">
+        <h2 style="margin-bottom:0.5rem;">Your Record</h2>
+        <div id="resultGrid" class="result-grid"></div>
+      </div>
+      <p class="portal-note">Results are fetched live from the official score sheet.</p>
+    </section>
+  </div>
+
+<script>
+  const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdQOSejyETbph_AfwnF3OVQo8up29ow3mqYi9FxwRMdWCimc_C6mFY-Mn8Lvnk6WN62hk2y7hW2j_9/pub?gid=2085174220&single=true&output=csv";
+  const INPUT_FIELD_CANDIDATES = ["Student Code", "student code", "Student code", "student_code", "Code", "code"];
+
+  const dom = {
+    studentInputLabel: document.getElementById("studentInputLabel"),
+    studentInput: document.getElementById("studentInput"),
+    lookupBtn: document.getElementById("lookupBtn"),
+    studentStatus: document.getElementById("studentStatus"),
+    resultCard: document.getElementById("resultCard"),
+    resultGrid: document.getElementById("resultGrid")
+  };
+
+  let cachedRows = null;
+  let cachedHeaders = [];
+  let inputField = "Student Code";
+
+  function setStatus(el, msg, isError = false) {
+    el.textContent = msg || "";
+    el.classList.toggle("error", !!isError);
+  }
+
+  function parseCSV(text) {
+    const rows = [];
+    let current = [];
+    let value = "";
+    let inQuotes = false;
+
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      const next = text[i + 1];
+
+      if (ch === '"') {
+        if (inQuotes && next === '"') {
+          value += '"';
+          i += 1;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (ch === "," && !inQuotes) {
+        current.push(value);
+        value = "";
+      } else if ((ch === "\n" || ch === "\r") && !inQuotes) {
+        if (ch === "\r" && next === "\n") i += 1;
+        current.push(value);
+        if (current.some(cell => cell.trim() !== "")) rows.push(current);
+        current = [];
+        value = "";
+      } else {
+        value += ch;
+      }
+    }
+
+    if (value.length > 0 || current.length > 0) {
+      current.push(value);
+      if (current.some(cell => cell.trim() !== "")) rows.push(current);
+    }
+
+    return rows;
+  }
+
+  function normalizeRows(rawRows) {
+    if (!rawRows.length) return { headers: [], rows: [] };
+    const headers = rawRows[0].map(h => h.trim());
+    const rows = rawRows.slice(1).map(cols => {
+      const item = {};
+      headers.forEach((h, idx) => {
+        item[h] = (cols[idx] || "").trim();
+      });
+      return item;
+    });
+    return { headers, rows };
+  }
+
+  function detectInputField(headers) {
+    for (const candidate of INPUT_FIELD_CANDIDATES) {
+      const match = headers.find(h => h.trim().toLowerCase() === candidate.toLowerCase());
+      if (match) return match;
+    }
+    return headers[0] || "Student Code";
+  }
+
+  async function loadSheetData() {
+    if (cachedRows) return { headers: cachedHeaders, rows: cachedRows };
+    const response = await fetch(CSV_URL, { cache: "no-store" });
+    if (!response.ok) throw new Error("Failed to fetch sheet data");
+    const csvText = await response.text();
+    const parsed = normalizeRows(parseCSV(csvText));
+    cachedRows = parsed.rows;
+    cachedHeaders = parsed.headers;
+    inputField = detectInputField(parsed.headers);
+    return parsed;
+  }
+
+  function renderStudentResult(row, headers) {
+    dom.resultGrid.innerHTML = "";
+    headers.forEach(field => {
+      const val = row[field] || "-";
+      const card = document.createElement("div");
+      card.className = "result-item";
+      card.innerHTML = '<div class="result-key">' + field + '</div><div class="result-value">' + val + "</div>";
+      dom.resultGrid.appendChild(card);
+    });
+    dom.resultCard.classList.remove("hidden");
+  }
+
+  async function lookupStudent() {
+    const query = dom.studentInput.value.trim().toLowerCase();
+    if (!query) {
+      setStatus(dom.studentStatus, "Please enter your " + inputField + ".", true);
+      return;
+    }
+
+    dom.lookupBtn.disabled = true;
+    setStatus(dom.studentStatus, "Checking record...");
+
+    try {
+      const { headers, rows } = await loadSheetData();
+      dom.studentInputLabel.textContent = inputField;
+      dom.studentInput.placeholder = "Enter your " + inputField;
+
+      const row = rows.find(item => (item[inputField] || "").trim().toLowerCase() === query);
+      if (!row) {
+        dom.resultCard.classList.add("hidden");
+        setStatus(dom.studentStatus, "No record found. Please verify your " + inputField + ".", true);
+        return;
+      }
+
+      setStatus(dom.studentStatus, "Record found.");
+      renderStudentResult(row, headers);
+    } catch (error) {
+      dom.resultCard.classList.add("hidden");
+      setStatus(dom.studentStatus, "Could not load data from sheet. Please try again.", true);
+    } finally {
+      dom.lookupBtn.disabled = false;
+    }
+  }
+
+  dom.lookupBtn.addEventListener("click", lookupStudent);
+  dom.studentInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") lookupStudent();
+  });
+
+  (async function init() {
+    setStatus(dom.studentStatus, "Loading sheet data...");
+    try {
+      const { headers, rows } = await loadSheetData();
+      dom.studentInputLabel.textContent = inputField;
+      dom.studentInput.placeholder = "Enter your " + inputField;
+      setStatus(dom.studentStatus, "Data loaded. Enter your " + inputField + ".");
+      if (!headers.length || !rows.length) {
+        setStatus(dom.studentStatus, "Sheet is empty or invalid.", true);
+      }
+    } catch (error) {
+      setStatus(dom.studentStatus, "Failed to load sheet data. Check publish settings.", true);
+    }
+  })();
+</script>
+</body>
+</html>
